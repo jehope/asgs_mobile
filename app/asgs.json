@@ -1,0 +1,24 @@
+{ 
+		   	"type":"LayerCollection",
+		   	"layers" : [
+		   		{"type":"XYZ", "name":"OpenStreetMap", "url":[
+		   			"http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                    "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                    "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                    "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png"
+                    ], "options": {"isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize"}
+                },
+		   		{"type":"WMS", "name":"Nextrad Radar", "url":[
+		   			"http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi?"
+                    ],
+                    "params" : { "layers": "nexrad-n0r-wmst", "transparent":"true", "format":"image/png", "time":"5min", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true", "opacity":".7", "ratio": "1","isBaselayer":"false", "sphericalMercator":"true","transitionEffect":"resize"}
+                },
+                {"type":"WMS", "name":"Rainfall Data", "url":[
+		   			"http://descartes.renci.org:8080/geoserver/wms"
+                    ],
+                    "params" : { "layers": "surfaceobs_current", "transparent":"true", "format":"image/png", "time":"5min", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true", "opacity":".7", "ratio": "1","isBaselayer":"false", "sphericalMercator":"true","transitionEffect":"resize"}
+                }
+		   	]
+	   }
