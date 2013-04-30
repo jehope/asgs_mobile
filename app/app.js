@@ -21,19 +21,61 @@
 	   },
 	   { 
 		   	"type":"LayerCollection",
-		   	"name":"NWS Data",
+		   	"name":"ASGS Layers",
 		   	"thelayers" : [
-		   		{"type":"WMS", "name":"Nextrad Radar", "url":[
+		   		{"type":"WMS", "name":"Water Height above MSL", "url":[
+		   			"http://geocompute2.renci.org/cera/wms"
+                    ],
+                    "params" : { "layers": "maxelev.zeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                },
+                {"type":"WMS", "name":"Inundation Depth above Ground", "url":[
+		   			"http://geocompute2.renci.org/cera/wms"
+                    ],
+                    "params" : { "layers": "maxelev.inundationZeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"],"visibility": "false"}, 
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                },
+                {"type":"WMS", "name":"Significant Wave Height", "url":[
+		   			"http://geocompute2.renci.org/cera/wms"
+                    ],
+                    "params" : { "layers": "maxhsign.zeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                },
+                {"type":"WMS", "name":"Relative Peak Wave Period", "url":[
+		   			"http://geocompute2.renci.org/cera/wms"
+                    ],
+                    "params" : { "layers": "maxtps.zeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                },
+                {"type":"WMS", "name":"Wind Speed", "url":[
+		   			"http://geocompute2.renci.org/cera/wms"
+                    ],
+                    "params" : { "layers": "maxwvel.zeta","styles": "default", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                }
+		   	]
+	   },
+	   { 
+		   	"type":"LayerCollection",
+		   	"name":"NWS Layers",
+		   	"thelayers" : [
+		   		{"type":"WMS", "name":"Nexrad Radar", "url":[
 		   			"http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi?"
                     ],
-                    "params" : { "layers": "nexrad-n0r-wmst", "transparent":true, "format":"image/png",  "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":true,"displayOutsideMaxExtent": true, "opacity":0.7, "ratio": "1", "sphericalMercator":true,"transitionEffect":"resize"}
+                    "params" : { "layers": "nexrad-n0r-wmst", "transparent":"true", "format":"image/png",  "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true","displayOutsideMaxExtent": "true", "opacity":"0.7", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize"}
                 },
                 {"type":"WMS", "name":"Rainfall Data", "url":[
 		   			"http://descartes.renci.org:8080/geoserver/wms"
                     ],
                     "params" : { "layers": "surfaceobs_current", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":true,"displayOutsideMaxExtent": true, "opacity":0.7, "ratio": 1, "sphericalMercator":"true","transitionEffect":"resize"}
+                    "options": { "singleTile":"true","displayOutsideMaxExtent": "true", "opacity":"0.7", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize"}
+                },
+                {"type":"WMS", "name":"Warnings and Watches", "url":[
+		   			"http://nowcoast.noaa.gov/wms/com.esri.wms.Esrimap/wwa?"
+                    ],
+                    "params" : { "layers": "WARN_SHORT_SVR,WARN_SHORT_TOR,WARN_SHORT_EWW,WARN_SHORT_FLW,WARN_SHORT_FFW", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true","displayOutsideMaxExtent": "true", "opacity":"1", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize"}
                 }
 		   	]
 	   }]
@@ -44,6 +86,7 @@
 	    });
 	    var drawer;
 	    var drawObject=[];
+	    var layerHtml = [];
 		var asgs_app_layers = [],
 		gg = new OpenLayers.Projection('EPSG:4326'),
     	sm = new OpenLayers.Projection('EPSG:900913'),
@@ -60,28 +103,12 @@
             ]
 	    });
 
-	    var tempasgs_app_layers =[];
+	    
 	    loadLayers(json_config);
 	    var lonlat_default = new OpenLayers.LonLat(-83, 33);
 		var last5min = new Date(Math.floor(Date.now()/3e5)*3e5);
 
-        var warnings = new OpenLayers.Layer.WMS(
-            "Warnings", 
-            "http://nowcoast.noaa.gov/wms/com.esri.wms.Esrimap/wwa?",
-            { 
-            	layers:'WARN_SHORT_SVR,WARN_SHORT_TOR,WARN_SHORT_EWW,WARN_SHORT_FLW,WARN_SHORT_FFW',
-            	transparent: true,
-            	format: 'image/png'
-            },
-            {
-            	isBaselayer: false,
-	            singleTile: true,
-	            ratio: 1,
-                transitionEffect:'resize',
-                isBaseLayer: false, 
-                displayOutsideMaxExtent: true
-             } 
-   		); 
+        
         console.log(last5min);
 	   	    // create a vector layer for drawing
 	    var vector = new OpenLayers.Layer.Vector('Drawing Layer', {
@@ -130,18 +157,20 @@
 	        //ga.renci.org/cera/alerts 
 	        //alert('here:'+data.feature.geometry);
 	    }
-function finishDraw() {
-    alert('done');
-}
-function successPost() {
-    alert('done');
-}
-	    console.log(map)
-	    map.addLayers(tempasgs_app_layers);
-		map.layers[1].mergeNewParams({'time':OpenLayers.Date.toISOString(last5min)});
+		function finishDraw() {
+		    alert('done');
+		}
+		function successPost() {
+		    alert('done');
+		}
+
+	    map.addLayers(asgs_app_layers);
+	    //update time param to get latest
+		map.layers[getLayerByName('Nexrad Radar')].mergeNewParams({'time':OpenLayers.Date.toISOString(last5min)});
+
 	    //initialize map position
 		lonlat_default.transform(gg, sm);
-		map.setCenter(lonlat_default, 5);
+		map.setCenter(lonlat_default, 6);
 
 		//map.addControl(new OpenLayers.Control.LayerSwitcher());
 		// create WMTS GetFeatureInfo control
@@ -153,7 +182,23 @@ function successPost() {
 	    // map.addControl(control);
 	    //control.activate();
 
-
+	    /**
+	     * [getLayerByName returns layer index]
+	     * @param  {[string]} layerName [name of layer]
+	     * @return {[integer]}           [index of layer]
+	     */
+	    function getLayerByName(layerName){
+	    	var saveInt;
+	    	//console.log(map.layers)
+	    	_.map(map.layers,function(val,key){
+	    		//console.log(layerName.length+' '+val.name.length)
+	    		if(layerName.trim()==val.name.trim()){
+					console.log(layerName+' read:'+val.name)
+		    		saveInt = key;
+		    	}
+	    	})
+	    	return saveInt;
+	    }
 
 	    function loadLayers(jsonS){
 	    	var layerObject =  jsonS;
@@ -165,12 +210,13 @@ function successPost() {
 		function scanLayers(obj)
 		{
 		    _.map(obj,function(val,key){
-	    	 	
+		    	if(val['type']=='LayerCollection'){
+		    		console.log(val)
+	    	 		buildLayerControls(val);
+	    	 	}
 	    	 	if(key=='thelayers') {
-	    	 		
-	    	 		console.log(key+':'+val)
-	    	 		_.map(val, function(key2,val2){
-	    	 			createLayers(key2)
+	    	 		_.map(val, function(val2,key2){
+	    	 			createLayers(val2);
 	    	 		})
 	    	 	}
 	    	 	if(val instanceof Object) {
@@ -181,27 +227,38 @@ function successPost() {
 	    	 });
 
 		}
-		function createLayers(layerO){
-			console.log(layerO)
-			var tempLayer;
+		function buildLayerControls(layerO){
+			console.log(layerO.name)
+			var tempLayerGroup =[];
+			var tempHtml = $('<ul class="nav nav-list layers"/>');
+			tempLayerGroup.name = layerO.name;
+			$(tempHtml).append('<li class="nav-header">Layer List <button class="btn btn-mini pull-right" type="button">disble all</button></li>');
+			_.map(layerO['thelayers'], function(val,key){
+				console.log('loop:'+val);
+				$(tempHtml).append('<li><a href="#" title="'+val.name+'"><input type="checkbox" name="optionsRadios" value="option1" checked> '+val.name+'</a></li>');
+			})
 			
+			tempLayerGroup.html = tempHtml;
+			layerHtml.push(tempLayerGroup);
+			console.log(layerHtml)
+		}
+		/**
+		 * [createLayers create a OpenLayers.Layer object]
+		 * @param  {[object]} layerO [layer json object to build layer with]
+		 * @return {[OpenLayers.Layer.type]}        [initialized layer object]
+		 */
+		function createLayers(layerO){
+			var tempLayer;
 			if(layerO.type=='XYZ') {
 				tempLayer = new OpenLayers.Layer.XYZ(layerO.name, layerO.url,layerO.options);
-				tempasgs_app_layers.push(tempLayer);
+				asgs_app_layers.push(tempLayer);
 			}
 			if(layerO.type=='WMS') {
 				tempLayer = new OpenLayers.Layer.WMS(layerO.name, layerO.url[0],layerO.params,layerO.options);
-				tempasgs_app_layers.push(tempLayer);
+				asgs_app_layers.push(tempLayer);
 			}
-			// _.map(layerO, function(key,val){
-			// 	console.log(key)
-				
-			// 	// var tempLayer = new OpenLayers.Layer
-			
-			// })
-			console.log(tempasgs_app_layers)
-			
 		}
+
     	function createASGSLayers(){
 	   		var layer_list = $('<ul class="nav nav-list layers"/>');
 	   		var layer_string = ['Water Height above MSL','Inundation Depth above Ground','Significant Wave Height','Relative Peak Wave Period','Wind Speed'];
@@ -240,16 +297,29 @@ function successPost() {
 			$('.layers li a').on('click', function(e){
 				$('.layers-modal .modal-body .desc').empty().append('<p class="text-success"><strong>Layer Description</strong><br/>'+this.title+'</p>');
 				$(this).children('input:radio').prop('checked', true);
-
+				hideLayer($(this).text());
 				if($(this).children('input:checkbox').prop('checked')){				
 					$(this).children('input:checkbox').prop('checked',true);
+					showLayer($(this).text());
 				}
 				else {
 					$(this).children('input:checkbox').prop('checked',false);
+					//hideLayer($(this).text());
 				}
+
+				//console.log($(this).text())
 			});
 		}
-
+		function showLayer(layerName) {
+			console.log(layerName)
+			console.log(getLayerByName(layerName))
+			map.layers[getLayerByName(layerName)].setVisibility(true);
+		}
+		function hideLayer(layerName) {
+			console.log(layerName)
+			console.log(getLayerByName(layerName))
+			map.layers[getLayerByName(layerName)].setVisibility(false);
+		}
 		/**
 		 * [ click events ]
 		 * 
@@ -261,13 +331,13 @@ function successPost() {
 			console.log(asgs_app_layers)
 			//e.preventDefault();
 			
-			loadModal('ASGS Layers',createASGSLayers());
+			loadModal('ASGS Layers',layerHtml[1].html);
 			$('.layers-modal').modal('show');
 			
 
 		});
 		$('.data-overlays').on('click', function(e){
-			loadModal('NWS Layers',createNWSLayers());
+			loadModal('NWS Layers',layerHtml[2].html);
 			$('.layers-modal').modal('show');
 		});
 		
