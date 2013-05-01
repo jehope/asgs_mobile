@@ -16,6 +16,14 @@
                     "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
                     "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png"
                     ], "options": {"isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize"}
+                },
+                {"type": "Google", "name":"Google Terrain", "options": {"type":google.maps.MapTypeId.TERRAIN, "isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
+                },
+                {"type": "Google", "name":"Google Streets", "options": {"type":"", "isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
+                },
+                {"type": "Google", "name":"Google Hybrid", "options": {"type":google.maps.MapTypeId.HYBRID, "isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
+                },
+                {"type": "Google", "name":"Google Satellite", "options": {"type":google.maps.MapTypeId.SATELLITE, "isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
                 }
 		   	]
 	   },
@@ -32,26 +40,28 @@
                 {"type":"WMS", "name":"Inundation Depth above Ground", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
-                    "params" : { "layers": "maxelev.inundationZeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"],"visibility": "false"}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                    "visibility": "false",
+                    "params" : { "layers": "maxelev.inundationZeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "visibility":false}
                 },
                 {"type":"WMS", "name":"Significant Wave Height", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
                     "params" : { "layers": "maxhsign.zeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "visibility":false}
                 },
                 {"type":"WMS", "name":"Relative Peak Wave Period", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
                     "params" : { "layers": "maxtps.zeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "visibility":false}
                 },
                 {"type":"WMS", "name":"Wind Speed", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
+                    "visibility":"false",
                     "params" : { "layers": "maxwvel.zeta","styles": "default", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "visibility":false}
                 }
 		   	]
 	   },
@@ -104,12 +114,7 @@
 	    });
 
 	    
-	    loadLayers(json_config);
-	    var lonlat_default = new OpenLayers.LonLat(-83, 33);
-		var last5min = new Date(Math.floor(Date.now()/3e5)*3e5);
-
-        
-        console.log(last5min);
+	    
 	   	    // create a vector layer for drawing
 	    var vector = new OpenLayers.Layer.Vector('Drawing Layer', {
 	        styleMap: new OpenLayers.StyleMap({
@@ -163,10 +168,20 @@
 		function successPost() {
 		    alert('done');
 		}
+		
+	    var lonlat_default = new OpenLayers.LonLat(-83, 33);
+		var last5min = new Date(Math.floor(Date.now()/3e5)*3e5);
 
+        
+        console.log(last5min);
+		asgs_app_layers = [];
+		scanLayers(json_config);
+		console.log('asgs_app_layers')
+		console.log(asgs_app_layers)
 	    map.addLayers(asgs_app_layers);
+	    console.log(map.layers)
 	    //update time param to get latest
-		map.layers[getLayerByName('Nexrad Radar')].mergeNewParams({'time':OpenLayers.Date.toISOString(last5min)});
+		//map.layers[getLayerByName('Nexrad Radar')].mergeNewParams({'time':OpenLayers.Date.toISOString(last5min)});
 
 	    //initialize map position
 		lonlat_default.transform(gg, sm);
@@ -189,17 +204,18 @@
 	     */
 	    function getLayerByName(layerName){
 	    	var saveInt;
-	    	//console.log(map.layers)
 	    	_.map(map.layers,function(val,key){
-	    		//console.log(layerName.length+' '+val.name.length)
 	    		if(layerName.trim()==val.name.trim()){
-					console.log(layerName+' read:'+val.name)
 		    		saveInt = key;
 		    	}
 	    	})
 	    	return saveInt;
 	    }
-
+	    /**
+	     * [loadLayers loads json object with the recursive scanLayers function]
+	     * @param  {[object]} jsonS [contains layer collections and settings]
+	     * @return {[type]}       [description]
+	     */
 	    function loadLayers(jsonS){
 	    	var layerObject =  jsonS;
 	
@@ -207,40 +223,45 @@
 	    	return '';
 	    }
 
-		function scanLayers(obj)
-		{
+		function scanLayers(obj) {
+			
 		    _.map(obj,function(val,key){
 		    	if(val['type']=='LayerCollection'){
-		    		console.log(val)
+		    		//console.log(val)
 	    	 		buildLayerControls(val);
 	    	 	}
 	    	 	if(key=='thelayers') {
 	    	 		_.map(val, function(val2,key2){
-	    	 			createLayers(val2);
-	    	 		})
+	    	 			asgs_app_layers.push(createLayers(val2));	    	 			
+	    	 		});
 	    	 	}
 	    	 	if(val instanceof Object) {
 	    	 		scanLayers(val);
 	    	 	}
-	    	 	
-	    	 	
+	    	 		    	 	
 	    	 });
-
 		}
 		function buildLayerControls(layerO){
-			console.log(layerO.name)
+
 			var tempLayerGroup =[];
 			var tempHtml = $('<ul class="nav nav-list layers"/>');
 			tempLayerGroup.name = layerO.name;
-			$(tempHtml).append('<li class="nav-header">Layer List <button class="btn btn-mini pull-right" type="button">disble all</button></li>');
+			$(tempHtml).append('<li class="nav-header">Layer List <button class="btn btn-mini pull-right disable-layers" type="button">disble all</button></li>');
 			_.map(layerO['thelayers'], function(val,key){
-				console.log('loop:'+val);
-				$(tempHtml).append('<li><a href="#" title="'+val.name+'"><input type="checkbox" name="optionsRadios" value="option1" checked> '+val.name+'</a></li>');
+				var checkedVar ="checked";
+				var tempType = 'checkbox';
+				if(val.options.isBaselayer) {
+					tempType = 'radio';
+				}
+				if(val.options.visibility==false) {
+					checkedVar	=	'';
+				}
+				$(tempHtml).append('<li><a href="#" title="'+val.name+'"><input type="'+tempType+'" name="optionsRadios" value="option1" '+checkedVar+'> '+val.name+'</a></li>');
 			})
 			
 			tempLayerGroup.html = tempHtml;
 			layerHtml.push(tempLayerGroup);
-			console.log(layerHtml)
+
 		}
 		/**
 		 * [createLayers create a OpenLayers.Layer object]
@@ -251,35 +272,19 @@
 			var tempLayer;
 			if(layerO.type=='XYZ') {
 				tempLayer = new OpenLayers.Layer.XYZ(layerO.name, layerO.url,layerO.options);
-				asgs_app_layers.push(tempLayer);
+				return tempLayer;
 			}
 			if(layerO.type=='WMS') {
 				tempLayer = new OpenLayers.Layer.WMS(layerO.name, layerO.url[0],layerO.params,layerO.options);
-				asgs_app_layers.push(tempLayer);
+				return tempLayer;
+			}
+			if(layerO.type=='Google') {
+				console.log(layerO.options.type)
+				tempLayer = new OpenLayers.Layer.Google(layerO.name,{type:layerO.options.type});
+				return tempLayer;
 			}
 		}
-
-    	function createASGSLayers(){
-	   		var layer_list = $('<ul class="nav nav-list layers"/>');
-	   		var layer_string = ['Water Height above MSL','Inundation Depth above Ground','Significant Wave Height','Relative Peak Wave Period','Wind Speed'];
-
-	   		$(layer_list).append('<li class="nav-header">Layer List <button class="btn btn-mini pull-right" type="button">disble all</button></li>');
-	   		$(layer_list).append('<li><a href="#" title="Maximum Water Height, Forecast Time Range:  Sat, 27-Apr-2013, 8 PM EDT  -  Wed, 01-May-2013, 8 AM EDT"><input type="radio" name="optionsRadios" value="option1" checked> Water Height above MSL</a></li>');
-	   		$(layer_list).append('<li><a href="#" title="Maximum Inundation Depth, Forecast Time Range:  Sat, 27-Apr-2013, 8 PM EDT  -  Wed, 01-May-2013, 8 AM EDT"><input type="radio" name="optionsRadios"  value="option1" > Inundation Depth above Ground</a></li>');
-	   		$(layer_list).append('<li><a href="#"><input type="radio" name="optionsRadios" value="option1" > Significant Wave Height</a></li>');
-	   		return layer_list;
-    	}
-    	function createNWSLayers(){
-	   		var layer_list = $('<ul class="nav nav-list layers"/>');
-	   		var layer_string = ['Water Height above MSL','Inundation Depth above Ground','Significant Wave Height','Relative Peak Wave Period','Wind Speed'];
-
-	   		$(layer_list).append('<li class="nav-header">Layer List <button class="btn btn-mini pull-right" type="button">disble all</button></li>');
-	   		$(layer_list).append('<li><a href="#" title="Nexrad Radar"><input type="checkbox" name="optionsRadios" value="option1" checked> Radar</a></li>');
-	   		$(layer_list).append('<li><a href="#" title="Rainfall stations"><input type="checkbox" name="optionsRadios"  value="option1" checked> Rainfall</a></li>');
-	   		$(layer_list).append('<li><a href="#"><input type="checkbox" name="optionsRadios" value="option1" checked> Watches & Warnings</a></li>');
-	   		return layer_list;
-    	}
-			
+	
 
 	    function pickStationid(e) {
 		  if (e.features && e.features.length) {
@@ -293,22 +298,48 @@
 			$('.layers-modal .modal-body').empty().append(content);
 			$('.layers-modal .modal-body').append('<div class="desc"/>');
 			$('.layers-modal .modal-body .desc').empty().append('<p class="text-success"><strong>Layer Description</strong><br/>'+$('li',content).find(':checked').closest('a').attr('title')+'</p>');
-
+ 			$('.disable-layers').on('click', function(e){
+ 				$('.layers li a').find('input').prop('checked',false);
+ 				_.map($('.layers li a'),function(val,key){
+					map.layers[getLayerByName($(val).text())].setVisibility(false);
+ 				});
+ 				
+ 				//map.layers[getLayerByName($('.layers li a').text())].setVisibility(false);
+ 			});
 			$('.layers li a').on('click', function(e){
 				$('.layers-modal .modal-body .desc').empty().append('<p class="text-success"><strong>Layer Description</strong><br/>'+this.title+'</p>');
 				$(this).children('input:radio').prop('checked', true);
+				hideRadioLayers();
 				hideLayer($(this).text());
-				if($(this).children('input:checkbox').prop('checked')){				
-					$(this).children('input:checkbox').prop('checked',true);
+
+				if($(this).children('input').prop('checked')){				
+					$(this).children('input').prop('checked',true);
 					showLayer($(this).text());
 				}
 				else {
-					$(this).children('input:checkbox').prop('checked',false);
-					//hideLayer($(this).text());
+					$(this).children('input').prop('checked',false);
+					hideLayer($(this).text());
 				}
 
 				//console.log($(this).text())
 			});
+			$('.close-modal').on('click', function(e){
+				$('.layers-modal').modal('hide');
+				//console.log($('.hide-nav').hasClass('in'))
+				
+			});
+			$('.layers-modal').on('hide', function () {
+  				if ($('.navbar-responsive-collapse').hasClass('in')) {
+            		$(".hide-nav").click();
+        		}
+			});
+			
+		}
+		function hideRadioLayers(){
+			_.map($('.layers li input:radio'),function(val,key){
+				console.log($(val).parent().text())
+				hideLayer($(val).parent().text());
+			})
 		}
 		function showLayer(layerName) {
 			console.log(layerName)
@@ -320,26 +351,45 @@
 			console.log(getLayerByName(layerName))
 			map.layers[getLayerByName(layerName)].setVisibility(false);
 		}
+		function redrawLayers(){
+			_.map(map.layers,function(val){
+				val.redraw();
+			})
+		}
 		/**
 		 * [ click events ]
 		 * 
 		 * 
 		 * 
 		 */
+		$('.base-modal').on('click', function(e){			
+			loadModal('ASGS Layers',layerHtml[0].html);
+			$('.layers-modal').modal('show');
+		});
 		$('.asgs-modal').on('click', function(e){
-			console.log('click')
-			console.log(asgs_app_layers)
-			//e.preventDefault();
-			
 			loadModal('ASGS Layers',layerHtml[1].html);
 			$('.layers-modal').modal('show');
-			
-
 		});
 		$('.data-overlays').on('click', function(e){
 			loadModal('NWS Layers',layerHtml[2].html);
 			$('.layers-modal').modal('show');
 		});
+		$('.olMap').on('click', function(e){			
+			if ($('.navbar-responsive-collapse').hasClass('in')) {
+            	$(".hide-nav").click();
+        	}
+		});
+		$('.map-zoom button').on('click', function(e){
+			if($(this).hasClass('zoom-in')) {
+				map.setCenter('',map.getZoom()+1);
+				redrawLayers();
+			}			
+			if($(this).hasClass('zoom-out')) {
+				map.setCenter('',map.getZoom()-1);
+				redrawLayers();
+			}
+		});
+		
 		
 
 	});
