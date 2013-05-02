@@ -10,13 +10,13 @@
 		   	"type":"LayerCollection",
 		   	"name":"Base Layers",
 		   	"thelayers" : [
-		   		{"type":"XYZ", "name":"OpenStreetMap", "url":[
+		   		{"type":"XYZ", "name":"OpenStreetMap MapQuest", "url":[
 		   			"http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
                     "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
                     "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
                     "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png"
                     ], "options": {"isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize"}
-                },
+                }/*,
                 {"type": "Google", "name":"Google Terrain", "options": {"type":google.maps.MapTypeId.TERRAIN, "isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
                 },
                 {"type": "Google", "name":"Google Streets", "options": {"type":"", "isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
@@ -24,68 +24,80 @@
                 {"type": "Google", "name":"Google Hybrid", "options": {"type":google.maps.MapTypeId.HYBRID, "isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
                 },
                 {"type": "Google", "name":"Google Satellite", "options": {"type":google.maps.MapTypeId.SATELLITE, "isBaselayer":"true", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
-                }
+                }*/
 		   	]
 	   },
 	   { 
 		   	"type":"LayerCollection",
 		   	"name":"ASGS Layers",
 		   	"thelayers" : [
-		   		{"type":"WMS", "name":"Water Height above MSL", "url":[
+		   		{"type":"WMS", "name":"Water Height above MSL", min:0, max:3, configurable: true, units:'m', "description":"The highest water level predicted during the model forecast.", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
                     "params" : { "layers": "maxelev.zeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize"}
+                    "options": { "opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "grouped":true}
                 },
-                {"type":"WMS", "name":"Inundation Depth above Ground", "url":[
+                {"type":"WMS", "name":"Inundation Depth above Ground", min:0, max:2, configurable: true, units:'m', "description":"The highest inundation depth predicted during the model forecast.", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
                     "visibility": "false",
-                    "params" : { "layers": "maxelev.inundationZeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "visibility":false}
+                    "params" : { "layers": "maxelev.inundationZeta","styles": "inundation_depth", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "grouped":true, "visibility":false}
                 },
-                {"type":"WMS", "name":"Significant Wave Height", "url":[
+                {"type":"WMS", "name":"Significant Wave Height", min:0, max:3, configurable: true, units:'m', "description":"The highest significant wave height predicted during the model forecast.", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
-                    "params" : { "layers": "maxhsign.zeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "visibility":false}
+                    "params" : { "layers": "maxhsign.zeta","styles": "wave_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "grouped":true, "visibility":false}
                 },
-                {"type":"WMS", "name":"Relative Peak Wave Period", "url":[
+                {"type":"WMS", "name":"Relative Peak Wave Period", min:0, max:10, configurable: true, units:'', "description":"The highest peak wave period predicted during the model forecast.", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
-                    "params" : { "layers": "maxtps.zeta","styles": "water_height", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "visibility":false}
+                    "params" : { "layers": "maxtps.zeta","styles": "rel_peak", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "grouped":true, "visibility":false}
                 },
-                {"type":"WMS", "name":"Wind Speed", "url":[
+                {"type":"WMS", "name":"Wind Speed", min:0, max:35, configurable: true, units:'m/sec', "description":"The highest wind speed predicted during the model forecast.", "url":[
 		   			"http://geocompute2.renci.org/cera/wms"
                     ],
                     "visibility":"false",
-                    "params" : { "layers": "maxwvel.zeta","styles": "default", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "visibility":false}
+                    "params" : { "layers": "maxwvel.zeta","styles": "wind_speed", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "opacity":"0.9", "ratio": "1","displayOutsideMaxExtent": "true", "sphericalMercator":"true","transitionEffect":"resize", "grouped":true, "visibility":false}
                 }
 		   	]
 	   },
 	   { 
 		   	"type":"LayerCollection",
-		   	"name":"NWS Layers",
+		   	"name":"Weather Layers",
 		   	"thelayers" : [
-		   		{"type":"WMS", "name":"Nexrad Radar", "url":[
+		   		{"type":"WMS", "name":"NWS Radar", "url":[
 		   			"http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi?"
                     ],
                     "params" : { "layers": "nexrad-n0r-wmst", "transparent":"true", "format":"image/png",  "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","displayOutsideMaxExtent": "true", "opacity":"0.7", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize"}
+                    "options": { "displayOutsideMaxExtent": "true", "opacity":"0.7", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize"}
                 },
                 {"type":"WMS", "name":"Rainfall Data", "url":[
 		   			"http://descartes.renci.org:8080/geoserver/wms"
                     ],
                     "params" : { "layers": "surfaceobs_current", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","displayOutsideMaxExtent": "true", "opacity":"0.7", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize"}
+                    "options": { "displayOutsideMaxExtent": "true", "opacity":"0.7", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize"}
                 },
                 {"type":"WMS", "name":"Warnings and Watches", "url":[
 		   			"http://nowcoast.noaa.gov/wms/com.esri.wms.Esrimap/wwa?"
                     ],
                     "params" : { "layers": "WARN_SHORT_SVR,WARN_SHORT_TOR,WARN_SHORT_EWW,WARN_SHORT_FLW,WARN_SHORT_FFW", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
-                    "options": { "singleTile":"true","displayOutsideMaxExtent": "true", "opacity":"1", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize"}
+                    "options": { "displayOutsideMaxExtent": "true", "opacity":"1", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
+                },
+                {"type":"WMS", "name":"Cloud Imagery (GOES Visible)", "url":[
+		   			"http://nowcoast.noaa.gov/wms/com.esri.wms.Esrimap/obs?"
+                    ],
+                    "params" : { "layers": "RAS_GOES", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "displayOutsideMaxExtent": "true", "opacity":"0.5", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
+                },
+                {"type":"WMS", "name":"Tropical Cyclone Track Forecast", "url":[
+		   			"http://nowcoast.noaa.gov/wms/com.esri.wms.Esrimap/wwa?"
+                    ],
+                    "params" : { "layers": "NHC_TRACK_LIN,NHC_TRACK_PT, NHC_TRACK_WWLIN,NHC_TRACK_PT_72DATE,NHC_TRACK_PT_120DATE, NHC_TRACK_PT_0NAMEDATE,NHC_TRACK_PT_MSLPLABELS, NHC_TRACK_PT_72WLBL,NHC_TRACK_PT_120WLBL'", "transparent":"true", "format":"image/png", "renderers": ["Canvas", "SVG", "VML"]}, 
+                    "options": { "displayOutsideMaxExtent": "true", "opacity":"0.5", "ratio": "1", "sphericalMercator":"true","transitionEffect":"resize","visibility":false}
                 }
 		   	]
 	   }]
@@ -170,18 +182,14 @@
 		}
 		
 	    var lonlat_default = new OpenLayers.LonLat(-83, 33);
-		var last5min = new Date(Math.floor(Date.now()/3e5)*3e5);
-
-        
-        console.log(last5min);
+	    var totalTiles;
 		asgs_app_layers = [];
 		scanLayers(json_config);
-		console.log('asgs_app_layers')
-		console.log(asgs_app_layers)
+		addLayerLoaders(asgs_app_layers);
 	    map.addLayers(asgs_app_layers);
-	    console.log(map.layers)
+
 	    //update time param to get latest
-		//map.layers[getLayerByName('Nexrad Radar')].mergeNewParams({'time':OpenLayers.Date.toISOString(last5min)});
+		map.getLayersByName('NWS Radar')[0].mergeNewParams({'time':refreshTime()});
 
 	    //initialize map position
 		lonlat_default.transform(gg, sm);
@@ -196,33 +204,19 @@
 	    // control.events.register("getfeatureinfo", this, pickStationid);
 	    // map.addControl(control);
 	    //control.activate();
+	    if(localStorage && localStorage.mapExtent) {
+            var me = JSON.parse(localStorage.mapExtent);
+            map.setCenter(new OpenLayers.LonLat(me.lon, me.lat), me.zoom);
+        }
+        else {
+            map.setCenter(lonlat_default, 6);
+        }
 
 	    /**
-	     * [getLayerByName returns layer index]
-	     * @param  {[string]} layerName [name of layer]
-	     * @return {[integer]}           [index of layer]
-	     */
-	    function getLayerByName(layerName){
-	    	var saveInt;
-	    	_.map(map.layers,function(val,key){
-	    		if(layerName.trim()==val.name.trim()){
-		    		saveInt = key;
-		    	}
-	    	})
-	    	return saveInt;
-	    }
-	    /**
-	     * [loadLayers loads json object with the recursive scanLayers function]
+	     * [scanLayers loads json object as a recursive function]
 	     * @param  {[object]} jsonS [contains layer collections and settings]
 	     * @return {[type]}       [description]
 	     */
-	    function loadLayers(jsonS){
-	    	var layerObject =  jsonS;
-	
-	    	scanLayers(layerObject);
-	    	return '';
-	    }
-
 		function scanLayers(obj) {
 			
 		    _.map(obj,function(val,key){
@@ -240,6 +234,22 @@
 	    	 	}
 	    	 		    	 	
 	    	 });
+
+		}
+		function addLayerLoaders(layers){
+			console.log('load layers into individual loaders and have a overall loader')
+			console.log('overall loader will be in footer...click to popup individual list')
+			
+			_.map(layers,function(val,key){
+				var visibleVar ='';
+				console.log(key)
+				if(val.options.visibility==false){
+					visibleVar = 'hide';
+				}
+				$('.layer-loads').append('<li class="'+visibleVar+'"><a>'+val.name+' <div class="progress progress-striped active"><div class="bar"></div></div></a></li>');
+				layerEvents(val,key);
+			})
+			$('loader-all-layers');
 		}
 		function buildLayerControls(layerO){
 
@@ -250,13 +260,21 @@
 			_.map(layerO['thelayers'], function(val,key){
 				var checkedVar ="checked";
 				var tempType = 'checkbox';
-				if(val.options.isBaselayer) {
+				var tempConfigHtml ='';
+				
+				if(val.options.isBaselayer||val.options.grouped) {
 					tempType = 'radio';
 				}
 				if(val.options.visibility==false) {
 					checkedVar	=	'';
 				}
-				$(tempHtml).append('<li><a href="#" title="'+val.name+'"><input type="'+tempType+'" name="optionsRadios" value="option1" '+checkedVar+'> '+val.name+'</a></li>');
+				if(val.configurable) {
+					tempConfigHtml = '<p class="config '+checkedVar+'">from <input type="text" size="4" class="pal-from span2" value="'+ val.min + '" name="' + val.name + '"> '+ val.units +
+                        ' to <input type="text" size="4" class="pal-to span2" value="'+ val.max + '" name="' + val.name + '"> ' + val.units+'</p>';
+                }
+                
+
+				$(tempHtml).append('<li><a href="#" title="'+val.description+'"><input type="'+tempType+'" name="optionsRadios" value="option1" '+checkedVar+'> '+val.name+'</a>'+tempConfigHtml+'</li>');
 			})
 			
 			tempLayerGroup.html = tempHtml;
@@ -279,7 +297,6 @@
 				return tempLayer;
 			}
 			if(layerO.type=='Google') {
-				console.log(layerO.options.type)
 				tempLayer = new OpenLayers.Layer.Google(layerO.name,{type:layerO.options.type});
 				return tempLayer;
 			}
@@ -301,7 +318,7 @@
  			$('.disable-layers').on('click', function(e){
  				$('.layers li a').find('input').prop('checked',false);
  				_.map($('.layers li a'),function(val,key){
-					map.layers[getLayerByName($(val).text())].setVisibility(false);
+					map.getLayersByName($(val).text())[0].setVisibility(false);
  				});
  				
  				//map.layers[getLayerByName($('.layers li a').text())].setVisibility(false);
@@ -309,9 +326,10 @@
 			$('.layers li a').on('click', function(e){
 				$('.layers-modal .modal-body .desc').empty().append('<p class="text-success"><strong>Layer Description</strong><br/>'+this.title+'</p>');
 				$(this).children('input:radio').prop('checked', true);
+				
 				hideRadioLayers();
 				hideLayer($(this).text());
-
+				$(this).siblings('.config').addClass('checked');
 				if($(this).children('input').prop('checked')){				
 					$(this).children('input').prop('checked',true);
 					showLayer($(this).text());
@@ -323,6 +341,21 @@
 
 				//console.log($(this).text())
 			});
+			$('.pal-from').change(function() {
+                var nm = $(this).attr('name');
+                var fr = $(this).val();
+                var to = $('.pal-to[name="' + nm + '"]').val();
+
+                map.getLayersByName(nm)[0].mergeNewParams({ styles : fr + ":" + to });
+            });
+            $('.pal-to').change(function() {
+                var nm = $(this).attr('name');
+                var fr = $('.pal-from[name="' + nm + '"]').val();
+                var to = $(this).val();
+
+                map.getLayersByName(nm)[0].mergeNewParams({ styles : fr + ":" + to });
+            });
+
 			$('.close-modal').on('click', function(e){
 				$('.layers-modal').modal('hide');
 				//console.log($('.hide-nav').hasClass('in'))
@@ -335,27 +368,61 @@
 			});
 			
 		}
+		function refreshTime(){
+			var tempTime = new Date(Math.floor(Date.now()/3e5)*3e5);
+			var freshTime = OpenLayers.Date.toISOString(tempTime);
+			$('.map-details').empty().text(tempTime);
+			return freshTime;
+		}
 		function hideRadioLayers(){
 			_.map($('.layers li input:radio'),function(val,key){
 				console.log($(val).parent().text())
+				$(val).parent().siblings('.config').removeClass('checked');
 				hideLayer($(val).parent().text());
 			})
 		}
+		function layerEvents(layerO,loaderItem){
+			var tempTotal;
+			var loaderLi = $('.layer-loads li').eq(loaderItem);
+			layerO.events.register("loadstart", layerO, function() {
+				totalTiles += this.grid.length * this.grid[0].length;
+
+				tempTotal = this.grid.length * this.grid[0].length;
+				//$(loaderLi).find('.bar').show();
+				$('.map-loader .msg').empty().append('Loading');
+                console.log("Load Start "+this.grid.length * this.grid[0].length);
+            });
+
+            layerO.events.register("tileloaded", layerO, function() {
+            	var tempRatio = tempTotal / this.numLoadingTiles;
+
+            
+            	$(loaderLi).find('.bar').css({'width':tempRatio * 10+'%'});
+                console.log("Tile loaded. " + this.numLoadingTiles + " left.");
+            });
+            layerO.events.register("loadend", layerO, function() {
+               $(loaderLi).find('.progress').removeClass('active');
+				//$('.map-loader .msg').empty().append('Loaded');
+            });
+		}
+		function overallLoader(leftToLoad) {
+			//totalTiles;
+			//leftToLoad
+			//$(loaderLi).find('.bar').css({'width':tempRatio * 10+'%'});
+		}
 		function showLayer(layerName) {
-			console.log(layerName)
-			console.log(getLayerByName(layerName))
-			map.layers[getLayerByName(layerName)].setVisibility(true);
+			layerEvents(layerName);
+			map.getLayersByName(layerName.trim())[0].setVisibility(true);
 		}
 		function hideLayer(layerName) {
-			console.log(layerName)
-			console.log(getLayerByName(layerName))
-			map.layers[getLayerByName(layerName)].setVisibility(false);
+			map.getLayersByName(layerName.trim())[0].setVisibility(false);
 		}
 		function redrawLayers(){
 			_.map(map.layers,function(val){
 				val.redraw();
 			})
 		}
+
 		/**
 		 * [ click events ]
 		 * 
@@ -363,32 +430,47 @@
 		 * 
 		 */
 		$('.base-modal').on('click', function(e){			
-			loadModal('ASGS Layers',layerHtml[0].html);
+			loadModal(layerHtml[0].name,layerHtml[0].html);
 			$('.layers-modal').modal('show');
 		});
 		$('.asgs-modal').on('click', function(e){
-			loadModal('ASGS Layers',layerHtml[1].html);
+			loadModal(layerHtml[1].name,layerHtml[1].html);
 			$('.layers-modal').modal('show');
 		});
 		$('.data-overlays').on('click', function(e){
-			loadModal('NWS Layers',layerHtml[2].html);
+			loadModal(layerHtml[2].name,layerHtml[2].html);
 			$('.layers-modal').modal('show');
 		});
-		$('.olMap').on('click', function(e){			
+		$('.olMap').on('mouseup', function(e){			
 			if ($('.navbar-responsive-collapse').hasClass('in')) {
             	$(".hide-nav").click();
         	}
 		});
+		
+		
 		$('.map-zoom button').on('click', function(e){
 			if($(this).hasClass('zoom-in')) {
 				map.setCenter('',map.getZoom()+1);
-				redrawLayers();
+				//redrawLayers();
 			}			
 			if($(this).hasClass('zoom-out')) {
 				map.setCenter('',map.getZoom()-1);
-				redrawLayers();
+				//redrawLayers();
+			}
+			if($(this).hasClass('refresh-layers')) {
+				map.getLayersByName('NWS Radar')[0].mergeNewParams({'time':refreshTime()});
 			}
 		});
+		map.events.on({moveend: function(){
+			redrawLayers();
+			var center = map.getCenter();
+            var zoom = map.getZoom();
+            localStorage.mapExtent = JSON.stringify({ lon: center.lon , lat: center.lat, zoom: zoom });
+            if ($('.navbar-responsive-collapse').hasClass('in')) {
+            	$(".hide-nav").click();
+        	}
+		}});
+
 		
 		
 
